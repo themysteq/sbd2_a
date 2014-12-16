@@ -1,1 +1,1 @@
-== Projekt numer 2 ze Strukur Baz Danych ==
+ Projekt numer 2 ze Strukur Baz Danych 
