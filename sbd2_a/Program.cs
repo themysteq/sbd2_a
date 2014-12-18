@@ -10,6 +10,8 @@ namespace sbd2_a
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("HELLO WORLD!");
+            Console.ReadLine();
         }
     }
 }
