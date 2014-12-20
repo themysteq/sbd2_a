@@ -23,7 +23,7 @@ namespace sbd2_a
             Page page = new Page();
             for (int i = 0 ; i < 10 ; i++ )
             {
-                byte[] valueToTest = Encoding.ASCII.GetBytes("LEL\0\0E");
+                byte[] valueToTest = Encoding.ASCII.GetBytes("LE45y4yyL\0\0E");
                 Console.WriteLine(i);
                 valueToTest[0] = (byte)i;
                 Record record = new Record(valueToTest, 0);

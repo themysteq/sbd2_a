@@ -8,8 +8,8 @@ namespace sbd2_a
 {
     class Page
     {
-        static public uint records_per_page = 5;
-        public int counter = 0;
+        static public int records_per_page = 5;
+        public int howManyRecordsInPage = 0;
         private byte[] _buffer;
         private Record[] _records;
         public Page()
@@ -22,10 +22,10 @@ namespace sbd2_a
         }
         public bool addRecordToPage(Record _record)
         {
-            if (counter < records_per_page)
+            if (howManyRecordsInPage < records_per_page)
             {
-                _records[counter] = _record;
-                counter++;
+                _records[ howManyRecordsInPage ] = _record;
+                howManyRecordsInPage++;
                 return true;
             }
             else
@@ -42,14 +42,14 @@ namespace sbd2_a
         
         public byte[] serializePageToBytes()
         {
-            int to_allocate = 0;
-            to_allocate = sizeof()
-            byte[] serializingBuffer = new 
-            foreach (Record record in this._records)
-            {
-                
-            }
+            /* 
+            int counter = 0;
+            int howManyElementsInPage = this.
+            int howManyToAllocate = records_per_page * (Record.howManyElementsInRecord + sizeof(int) + sizeof(int));
+            byte[] serializingBuffer = new byte[howManyToAllocate];
+             * */
+
         }
-         */
+         
     }
 }
