@@ -9,11 +9,12 @@ namespace sbd2_a
     class Record
     {
 
-        private int key;
+        private byte key;
         private byte[] body;
         private int pointer;
         public static int howManyElementsInRecord = 10;
-    
+        public static int recordSizeInBytes = Record.howManyElementsInRecord + sizeof(int) + sizeof(byte);
+
         public Record()
         {
 
@@ -25,19 +26,34 @@ namespace sbd2_a
             this.pointer = _pointer;
             this.key = this.getKeyValue();
         }
-        public static byte[] intToBytes(int _val)
+        public static byte[] numberToBytes(byte _val)
         {
 
+            byte[] result = new byte[1];
+            result[0] = _val;
+            return result;
+        }
+        public static byte[] numberToBytes(int _val)
+        {
+           
             byte[] intBytes = BitConverter.GetBytes(_val);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(intBytes);
             byte[] result = intBytes;
             return result;
         }
+        public static int FourBytesToInt(byte[] _bytes, int offset)
+        {
+            byte[] intbytes = new byte[sizeof(int)];
+            System.Buffer.BlockCopy(_bytes, offset, intbytes, 0, sizeof(int));
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(intbytes);
+            return BitConverter.ToInt32(intbytes, 0);
+        }
         public byte[] getRecordByteStream()
         {
-            byte[] keyBytes = Record.intToBytes(this.key);
-            byte[] pointerBytes = Record.intToBytes(this.pointer);
+            byte[] keyBytes = Record.numberToBytes(this.key);
+            byte[] pointerBytes = Record.numberToBytes(this.pointer);
             byte[] bodyBytes = this.body;
             byte[] buffer = new byte[keyBytes.Length + pointerBytes.Length + bodyBytes.Length];
             System.Buffer.BlockCopy(keyBytes, 0, buffer, 0, keyBytes.Length);
@@ -46,10 +62,22 @@ namespace sbd2_a
             return buffer;
         }
 
-        public int getKeyValue()
+        public static Record createRecordFromBytes(byte[] _record_in_bytes)
+        {
+            byte key = _record_in_bytes[0];
+            int pointer = Record.FourBytesToInt(_record_in_bytes, 1);
+            byte[] record_body = new byte[ Record.howManyElementsInRecord ];
+            System.Buffer.BlockCopy(_record_in_bytes, sizeof(byte) + sizeof(int), record_body, 0, Record.howManyElementsInRecord);
+            Record record = new Record(record_body, pointer);
+            return record;
+
+
+        }
+
+        public byte getKeyValue()
         {
 
-           int count = 0;
+           byte count = 0;
             foreach (byte elem in this.body){
                 byte val = elem;
                 while (val != 0) {
@@ -63,7 +91,7 @@ namespace sbd2_a
         }
         public override string ToString()
         {
-            return String.Format("{0}", this.key);
+            return String.Format("{0} ptr({1})", this.key,this.pointer);
         }
     }
 }

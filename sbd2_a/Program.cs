@@ -13,16 +13,8 @@ namespace sbd2_a
         static public String overflow_file = @"overflow.bin";
         static void Main(string[] args)
         {
-            /*
-            byte[] valueToTest = Encoding.ASCII.GetBytes("LEL\0\0E");
-            uint enabledBits = 12;
-            Console.WriteLine("HELLO WORLDDDDDDDD!");
-            RecordTester test = new RecordTester();
-            Record record = new Record(valueToTest, 0);
-            bool test_result = test.testIt(record, enabledBits);
-            Console.WriteLine(test_result);
-            Console.ReadLine();
-             */
+          
+            
             Random rnd = new Random();
             Page page = new Page();
             for (int i = 0 ; i < 10 ; i++ )
@@ -31,14 +23,14 @@ namespace sbd2_a
                
                 rnd.NextBytes(valueToTest);
 
-                Record record = new Record(valueToTest, 0);
+                Record record = new Record(valueToTest, 1);
                 
 
                 bool ifInserted = false;
                 try
                 {
                      ifInserted = page.addRecordToPage(record);
-                     String output = String.Format("{0}:{1}| inserted: {1}",i, record, ifInserted);
+                     String output = String.Format("{0}:{1}| inserted: {2}",i, record, ifInserted);
                      Console.WriteLine(output);
                 }
                 catch(PageFullException e)
@@ -53,19 +45,54 @@ namespace sbd2_a
             Console.WriteLine("Serializing...");
             byte[] write_buffer = page.serializePageToBytes();
             Console.WriteLine("Done");
-            using (BinaryWriter writer = new BinaryWriter(File.Open(primary_file,FileMode.OpenOrCreate))) 
+            using (BinaryWriter writer = new BinaryWriter(File.Open(primary_file,FileMode.Truncate))) 
             {
                 writer.Write(write_buffer);
             }
             Console.WriteLine(page);
+            
             if(File.Exists(primary_file))
             {
                 using (BinaryReader reader = new BinaryReader(File.Open(primary_file,FileMode.Open)))
                 {
-                   // reader.Read()
+                    int offset = 0;
+                    while(true)
+                    {
+                        int bytes_read = 0;
+                        byte[] read_buffer = new byte[Page.page_size_in_bytes];
+                        try {
+                            bytes_read = reader.Read(read_buffer, offset, Page.page_size_in_bytes);
+                        }
+                        catch (System.ArgumentException e)
+                        {
+                            Console.WriteLine(e.Message);
+                            break;
+                        }
+
+                        if (bytes_read == 0)
+                        {
+                            Page read_page = Page.deserializePage(read_buffer);
+                            Console.WriteLine("No more pages. Closing.");
+                            //print record
+                            break;
+                        }
+                        else if(bytes_read < Page.page_size_in_bytes)
+                        {
+                            throw new PageReadFaultyException("Number of bytes is not aligned to size of Page! This is fatal.");
+                        }
+                        else
+                        {
+                            Page read_page = Page.deserializePage(read_buffer);
+                            Console.WriteLine(read_page);
+                            offset += Page.page_size_in_bytes;
+                            
+                            
+                        }
+                    }
                 }
             }
-            Console.ReadLine();
+            Console.WriteLine("Press any key to end..");
+            Console.ReadKey();
 
         }
     }

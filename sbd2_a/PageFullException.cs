@@ -12,4 +12,10 @@ namespace sbd2_a
         public PageFullException(string message) : base(message) { }
         public PageFullException(string message, Exception inner) : base(message, inner) { }
     }
+    class PageReadFaultyException: Exception
+    {
+        public PageReadFaultyException() { }
+        public PageReadFaultyException(string message) : base(message) { }
+        public PageReadFaultyException(string message, Exception inner) : base(message, inner) { }
+    }
 }
