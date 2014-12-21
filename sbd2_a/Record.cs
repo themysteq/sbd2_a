@@ -9,22 +9,22 @@ namespace sbd2_a
     class Record
     {
 
-        private byte key;
+        private int key;
         private byte[] body;
         private int pointer;
         public static int howManyElementsInRecord = 10;
-        public static int recordSizeInBytes = Record.howManyElementsInRecord + sizeof(int) + sizeof(byte);
+        public static int recordSizeInBytes = Record.howManyElementsInRecord + sizeof(int) + sizeof(int);
 
         public Record()
         {
 
         }
-        public Record(byte[] _body, int _pointer)
+        public Record(byte[] _body, int _pointer, int _key)
         {
             if (_body.Length > howManyElementsInRecord) { throw new OverflowException("Record is too long!"); }
             this.body = _body;
             this.pointer = _pointer;
-            this.key = this.getKeyValue();
+            this.key = _key;
         }
         public static byte[] numberToBytes(byte _val)
         {
@@ -64,20 +64,21 @@ namespace sbd2_a
 
         public static Record createRecordFromBytes(byte[] _record_in_bytes)
         {
-            byte key = _record_in_bytes[0];
-            int pointer = Record.FourBytesToInt(_record_in_bytes, 1);
+            int key = Record.FourBytesToInt(_record_in_bytes, 0);
+            int pointer = Record.FourBytesToInt(_record_in_bytes, 4);
             byte[] record_body = new byte[ Record.howManyElementsInRecord ];
-            System.Buffer.BlockCopy(_record_in_bytes, sizeof(byte) + sizeof(int), record_body, 0, Record.howManyElementsInRecord);
-            Record record = new Record(record_body, pointer);
+            System.Buffer.BlockCopy(_record_in_bytes, sizeof(int) + sizeof(int), record_body, 0, Record.howManyElementsInRecord);
+            Record record = new Record(record_body, pointer, key);
             return record;
 
 
         }
-
-        public byte getKeyValue()
+        
+        public int getKeyValue()
         {
-
-           byte count = 0;
+            return this.key;
+            /*
+           int count = 0;
             foreach (byte elem in this.body){
                 byte val = elem;
                 while (val != 0) {
@@ -87,11 +88,20 @@ namespace sbd2_a
             
             }
             return count;
-            
+            */
         }
+
         public override string ToString()
         {
             return String.Format("{0} ptr({1})", this.key,this.pointer);
+        }
+        public static Record generateRandomRecord(Random rnd, int min, int max)
+        {
+            Record record = null;
+            byte[] valueToTest = new byte[10];
+            rnd.NextBytes(valueToTest);
+            record = new Record(valueToTest, -1,rnd.Next(min, max));
+            return record; 
         }
     }
 }

@@ -12,7 +12,7 @@ namespace sbd2_a
         public int howManyRecordsInPage = 0;
         private Record[] records_container;
         public static int page_size_in_bytes = Record.recordSizeInBytes * records_per_page;
-        public static int allocate_size = Page.records_per_page * (Record.howManyElementsInRecord + sizeof(int) + sizeof(byte));
+        public static int allocate_size = Page.records_per_page * Record.recordSizeInBytes;
         public Page()
         {
            records_container = new Record[records_per_page];
@@ -86,6 +86,27 @@ namespace sbd2_a
                 output += record.ToString()+Environment.NewLine;
             }
             return output;
+        }
+        public static Page generateRandomPage(Random rnd, int min, int max)
+        {
+            Page page = new Page();
+
+            while(true)
+            {
+                Record rec = Record.generateRandomRecord(rnd, min, max);
+                try
+                {
+                    page.addRecordToPage(rec);
+            
+                }
+                catch (PageFullException e)
+                {
+                    Console.WriteLine("Generating Page - Page is full!");
+                    break;
+                }
+            }
+
+            return page;
         }
     }
 }
