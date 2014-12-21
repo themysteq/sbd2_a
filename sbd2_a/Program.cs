@@ -23,7 +23,7 @@ namespace sbd2_a
                
                 rnd.NextBytes(valueToTest);
 
-                Record record = new Record(valueToTest, 1);
+                Record record = new Record(valueToTest, -1);
                 
 
                 bool ifInserted = false;
@@ -31,7 +31,7 @@ namespace sbd2_a
                 {
                      ifInserted = page.addRecordToPage(record);
                      String output = String.Format("{0}:{1}| inserted: {2}",i, record, ifInserted);
-                     Console.WriteLine(output);
+                   //  Console.WriteLine(output);
                 }
                 catch(PageFullException e)
                 {
@@ -45,15 +45,16 @@ namespace sbd2_a
             Console.WriteLine("Serializing...");
             byte[] write_buffer = page.serializePageToBytes();
             Console.WriteLine("Done");
-            using (BinaryWriter writer = new BinaryWriter(File.Open(primary_file,FileMode.Truncate))) 
+            using (FileStream fs = new FileStream(primary_file, FileMode.Create))
             {
-                writer.Write(write_buffer);
+                fs.Write(write_buffer, 0, write_buffer.Length);
+                fs.Write(write_buffer, 0, write_buffer.Length);
             }
-            Console.WriteLine(page);
             
             if(File.Exists(primary_file))
             {
-                using (BinaryReader reader = new BinaryReader(File.Open(primary_file,FileMode.Open)))
+                int read_pages_count = 0; 
+                using (FileStream fs = new FileStream(primary_file, FileMode.Open))
                 {
                     int offset = 0;
                     while(true)
@@ -61,7 +62,8 @@ namespace sbd2_a
                         int bytes_read = 0;
                         byte[] read_buffer = new byte[Page.page_size_in_bytes];
                         try {
-                            bytes_read = reader.Read(read_buffer, offset, Page.page_size_in_bytes);
+                            bytes_read = fs.Read(read_buffer, 0, Page.page_size_in_bytes);
+                            
                         }
                         catch (System.ArgumentException e)
                         {
@@ -71,9 +73,8 @@ namespace sbd2_a
 
                         if (bytes_read == 0)
                         {
-                            Page read_page = Page.deserializePage(read_buffer);
                             Console.WriteLine("No more pages. Closing.");
-                            //print record
+  
                             break;
                         }
                         else if(bytes_read < Page.page_size_in_bytes)
@@ -85,11 +86,13 @@ namespace sbd2_a
                             Page read_page = Page.deserializePage(read_buffer);
                             Console.WriteLine(read_page);
                             offset += Page.page_size_in_bytes;
+                            read_pages_count++;
                             
                             
                         }
                     }
                 }
+                Console.WriteLine(String.Format("pages read: {0}",read_pages_count));
             }
             Console.WriteLine("Press any key to end..");
             Console.ReadKey();
