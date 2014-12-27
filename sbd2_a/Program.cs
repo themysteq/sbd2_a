@@ -35,6 +35,7 @@ namespace sbd2_a
                int write_offset = 0;
                foreach (var item in list_of_pages)
 	            {
+                    item.Sort();
 		            pagehandler.WritePageToPrimary(write_offset, (Page)item);
 	                write_offset += Page.allocate_size;
                 }

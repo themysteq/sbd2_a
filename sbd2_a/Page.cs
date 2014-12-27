@@ -108,5 +108,21 @@ namespace sbd2_a
 
             return page;
         }
+        public void Sort()
+        {
+            Record temp = null;
+            for( int i = 0 ; i <this.howManyRecordsInPage; i++)
+            {
+                for(int x = 0; x < this.howManyRecordsInPage; x++)
+                {
+                    if (this.records_container[i].getKeyValue() < this.records_container[x].getKeyValue())
+                    {
+                        temp = this.records_container[i];
+                        this.records_container[i] = this.records_container[x];
+                        this.records_container[x] = temp;
+                    }
+                }
+            }
+        }
     }
 }
