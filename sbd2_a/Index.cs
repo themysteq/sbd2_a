@@ -33,7 +33,7 @@ namespace sbd2_a
 
             if (_index_body == null)
             {
-
+                return 0;
             }
             else //jesli jednak jakiś indeks juz istnieje
             {
@@ -43,11 +43,12 @@ namespace sbd2_a
                     {
                         throw new InvalidOperationException("Key must not be duplicated!");
                     }
-                    if (key_value < _index_body[i].key)
+                     else if (key_value < _index_body[i].key)
                     {
                         //wez poprzednika, powinien byc mniejszy-
                         if(_index_body[i-1].key < key_value)
                         {
+                            return (i - 1);
 
                         }
                         else
@@ -56,9 +57,16 @@ namespace sbd2_a
                             throw new InvalidOperationException("Key is greater but not less?! Paradox");
                         }
                     }
-                }
+                    else if(_index_body[i].key == -1)
+                    { 
+                        //następnik jest minus jedynką czyli masz pustą stronę do wzięcia - to się za nią weź!
+                        return i;
+                    }
+
+                }//--endfor
+              throw new InvalidOperationException("All paths failed! Nowhere to insert.");
             }
-            return 0;
+            
         }
     }
 }
