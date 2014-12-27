@@ -47,7 +47,6 @@ namespace sbd2_a
                     {
                         //wez poprzednika, powinien byc mniejszy-
                         if(_index_body[i-1].key < key_value)
-                        
                         {
 
                         }
